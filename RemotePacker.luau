@@ -87,12 +87,10 @@ local function InitRunService(delta)
 			key.key_delta += delta	
 			if key.key_delta >= key.key_timer then
 				keys[i] = nil
-				if key.remote_type == "Server" then
-					remote:FireServer(i, key.key_data)
-				elseif key.remote_type == "Client" then
-					remote:FireClient(i.player, key, key.key_data)
-				elseif key.remote_type == "AllClients" then
-					remote:FireAllClients(i, key.key_data)
+				if key.key_player then
+					remote["Fire"..key.remote_type](remote, key.key_player, i, key.key_data)
+				else
+					remote["Fire"..key.remote_type](remote, i, key.key_data)
 				end
 			end
 		end)
