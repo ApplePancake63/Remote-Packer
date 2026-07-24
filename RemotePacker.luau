@@ -23,7 +23,6 @@ function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:numb
 		local key_data = keys[key].key_data
 		keys[key] = nil
 		remote:FireServer(key, key_data)
-		print("SENT ON COUNT")
 	end
 end
 function RemotePacker:FireClient(player:Player, key:string, key_capacity:number, key_timer:number, ...:any)
@@ -43,7 +42,6 @@ function RemotePacker:FireClient(player:Player, key:string, key_capacity:number,
 		local key_data = keys[key].key_data
 		keys[key] = nil
 		remote:FireClient(player, key, key_data)
-		print("SENT ON COUNT")
 	end
 end
 function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:number, ...:any)
@@ -62,7 +60,6 @@ function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:
 		local key_data = keys[key].key_data
 		keys[key] = nil
 		remote:FireAllClients(key, key_data)
-		print("SENT ON COUNT")
 	end
 end
 
@@ -70,7 +67,6 @@ function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScri
 	if not is_init then local result=RemotePacker:Init() if not result then return end end
 	return remote.OnServerEvent:Connect(function(player, key, key_data)
 		for _, data in key_data do
-			print("ABC", data)
 			func(player, unpack(data))
 		end
 	end)
@@ -90,9 +86,7 @@ local function InitRunService(delta)
 			key.key_delta = key.key_delta or 0
 			key.key_delta += delta	
 			if key.key_delta >= key.key_timer then
-				print("SENT ON DELTA")
 				keys[i] = nil
-				print(key)
 				if key.remote_type == "Server" then
 					remote:FireServer(i, key.key_data)
 				elseif key.remote_type == "Client" then
