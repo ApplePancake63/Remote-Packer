@@ -8,7 +8,7 @@ local remote = script:FindFirstChildOfClass("RemoteEvent") -- THIS IS THE REMOTE
 local is_init = false
 
 function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:number, ...:any)
-	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "Server",
@@ -26,7 +26,7 @@ function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:numb
 	end
 end
 function RemotePacker:FireClient(player:Player, key:string, key_capacity:number, key_timer:number, ...:any)
-	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "Client",
@@ -45,7 +45,7 @@ function RemotePacker:FireClient(player:Player, key:string, key_capacity:number,
 	end
 end
 function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:number, ...:any)
-	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "AllClients",
@@ -64,7 +64,7 @@ function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:
 end
 
 function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScriptConnection)
-	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not is_init then return end
 	return remote.OnServerEvent:Connect(function(player, key, key_data)
 		for _, data in key_data do
 			func(player, unpack(data))
@@ -72,7 +72,7 @@ function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScri
 	end)
 end
 function RemotePacker:ConnectOnClient(key:string, func:(...any)->RBXScriptConnection)
-	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not is_init then return end
 	return remote.OnClientEvent:Connect(function(key, key_data)
 		for _, data in key_data do
 			func(unpack(data))
@@ -98,17 +98,18 @@ local function InitRunService(delta)
 		end)
 	end
 end
-function RemotePacker:Init()
-	if not remote then
-		warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
-		return
-	end
-	if RunService:IsClient() then
-		RunService.RenderStepped:Connect(InitRunService)
-	else
-		RunService.Heartbeat:Connect(InitRunService)
-	end
-	is_init = true
+
+--\\ on require()
+if not remote then
+	warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
+	return
 end
+if RunService:IsClient() then
+	RunService.RenderStepped:Connect(InitRunService)
+else
+	RunService.Heartbeat:Connect(InitRunService)
+end
+is_init = true
+--//
 
 return RemotePacker
