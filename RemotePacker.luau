@@ -1,0 +1,120 @@
+local RemotePacker = {}
+local RunService = game:GetService("RunService")
+
+type key_data = {remote_type:"Server"|"Client"|"AllClients", key_player:Player?, key_capacity:number, key_timer:number, key_delta:number, key_data:{{any}}}
+local keys = {} :: {key_data}
+
+local remote = script:FindFirstChildOfClass("RemoteEvent") -- THIS IS THE REMOTE EVENT THAT MAKES THE WHOLE SCRIPT WORK
+local is_init = false
+
+function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:number, ...:any)
+	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not keys[key] then
+		keys[key] = {
+			remote_type = "Server",
+			key_capacity = key_capacity,
+			key_timer = key_timer,
+			key_delta = 0,
+			key_data = {}
+		}
+	end
+	table.insert(keys[key].key_data, {...})
+	if #keys[key].key_data >= keys[key].key_capacity then
+		local key_data = keys[key].key_data
+		keys[key] = nil
+		remote:FireServer(key, key_data)
+		print("SENT ON COUNT")
+	end
+end
+function RemotePacker:FireClient(player:Player, key:string, key_capacity:number, key_timer:number, ...:any)
+	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not keys[key] then
+		keys[key] = {
+			remote_type = "Client",
+			key_player = player,
+			key_capacity = key_capacity,
+			key_timer = key_timer,
+			key_delta = 0,
+			key_data = {}
+		}
+	end
+	table.insert(keys[key].key_data, {...})
+	if #keys[key].key_data >= keys[key].key_capacity or keys.delta >= keys[key].key_timer then
+		local key_data = keys[key].key_data
+		keys[key] = nil
+		remote:FireClient(player, key, key_data)
+		print("SENT ON COUNT")
+	end
+end
+function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:number, ...:any)
+	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	if not keys[key] then
+		keys[key] = {
+			remote_type = "AllClients",
+			key_capacity = key_capacity,
+			key_timer = key_timer,
+			key_delta = 0,
+			key_data = {}
+		}
+	end
+	table.insert(keys[key].key_data, {...})
+	if #keys[key].key_data >= keys[key].key_capacity then
+		local key_data = keys[key].key_data
+		keys[key] = nil
+		remote:FireAllClients(key, key_data)
+		print("SENT ON COUNT")
+	end
+end
+
+function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScriptConnection)
+	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	return remote.OnServerEvent:Connect(function(player, key, key_data)
+		for _, data in key_data do
+			print("ABC", data)
+			func(player, unpack(data))
+		end
+	end)
+end
+function RemotePacker:ConnectOnClient(key:string, func:(...any)->RBXScriptConnection)
+	if not is_init then local result=RemotePacker:Init() if not result then return end end
+	return remote.OnClientEvent:Connect(function(key, key_data)
+		for _, data in key_data do
+			func(unpack(data))
+		end
+	end)
+end
+
+local function InitRunService(delta)
+	for i, key:key_data in keys do
+		task.spawn(function()
+			key.key_delta = key.key_delta or 0
+			key.key_delta += delta	
+			if key.key_delta >= key.key_timer then
+				print("SENT ON DELTA")
+				keys[i] = nil
+				print(key)
+				if key.remote_type == "Server" then
+					remote:FireServer(i, key.key_data)
+				elseif key.remote_type == "Client" then
+					remote:FireClient(i.player, key, key.key_data)
+				elseif key.remote_type == "AllClients" then
+					remote:FireAllClients(i, key.key_data)
+				end
+			end
+		end)
+	end
+end
+function RemotePacker:Init()
+	if not remote then
+		warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
+		return
+	end
+	if RunService:IsClient() then
+		RunService.RenderStepped:Connect(InitRunService)
+	else
+		RunService.Heartbeat:Connect(InitRunService)
+	end
+	is_init = true
+end
+
+return RemotePacker
