@@ -60,7 +60,7 @@ function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:
 	remote:FireAllClients(key, key_data)
 end
 
-function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScriptConnection)
+function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->()):RBXScriptConnection
 	if not is_init then return end
 	return remote.OnServerEvent:Connect(function(player, key, key_data)
 		for _, data in key_data do
@@ -68,7 +68,7 @@ function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScri
 		end
 	end)
 end
-function RemotePacker:ConnectOnClient(key:string, func:(...any)->RBXScriptConnection)
+function RemotePacker:ConnectOnClient(key:string, func:(...any)->()):RBXScriptConnection
 	if not is_init then return end
 	return remote.OnClientEvent:Connect(function(key, key_data)
 		for _, data in key_data do
