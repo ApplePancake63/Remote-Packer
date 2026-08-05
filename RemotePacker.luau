@@ -19,11 +19,10 @@ function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:numb
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data >= keys[key].key_capacity then
-		local key_data = keys[key].key_data
-		keys[key] = nil
-		remote:FireServer(key, key_data)
-	end
+	if #keys[key].key_data < keys[key].key_capacity then return end
+	local key_data = keys[key].key_data
+	keys[key] = nil
+	remote:FireServer(key, key_data)
 end
 function RemotePacker:FireClient(player:Player, key:string, key_capacity:number, key_timer:number, ...:any)
 	if not is_init then return end
@@ -38,11 +37,10 @@ function RemotePacker:FireClient(player:Player, key:string, key_capacity:number,
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data >= keys[key].key_capacity or keys.delta >= keys[key].key_timer then
-		local key_data = keys[key].key_data
-		keys[key] = nil
-		remote:FireClient(player, key, key_data)
-	end
+	if #keys[key].key_data < keys[key].key_capacity and keys.delta < keys[key].key_timer then return end
+	local key_data = keys[key].key_data
+	keys[key] = nil
+	remote:FireClient(player, key, key_data)
 end
 function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:number, ...:any)
 	if not is_init then return end
@@ -56,11 +54,10 @@ function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data >= keys[key].key_capacity then
-		local key_data = keys[key].key_data
-		keys[key] = nil
-		remote:FireAllClients(key, key_data)
-	end
+	if #keys[key].key_data < keys[key].key_capacity then return end
+	local key_data = keys[key].key_data
+	keys[key] = nil
+	remote:FireAllClients(key, key_data)
 end
 
 function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->RBXScriptConnection)
@@ -85,13 +82,12 @@ local function InitRunService(delta)
 		task.spawn(function()
 			key.key_delta = key.key_delta or 0
 			key.key_delta += delta	
-			if key.key_delta >= key.key_timer then
-				keys[i] = nil
-				if key.key_player then
-					remote["Fire"..key.remote_type](remote, key.key_player, i, key.key_data)
-				else
-					remote["Fire"..key.remote_type](remote, i, key.key_data)
-				end
+			if key.key_delta < key.key_timer then return end
+			keys[i] = nil
+			if key.key_player then
+				remote["Fire"..key.remote_type](remote, key.key_player, i, key.key_data)
+			else
+				remote["Fire"..key.remote_type](remote, i, key.key_data)
 			end
 		end)
 	end
@@ -100,7 +96,7 @@ end
 --\\ on require()
 if not remote then
 	warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
-	return
+	return nil
 end
 if RunService:IsClient() then
 	RunService.RenderStepped:Connect(InitRunService)
