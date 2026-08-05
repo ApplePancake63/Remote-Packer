@@ -96,7 +96,7 @@ end
 --\\ on require()
 if not remote then
 	warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
-	return nil
+	return RemotePacker
 end
 if RunService:IsClient() then
 	RunService.RenderStepped:Connect(InitRunService)
