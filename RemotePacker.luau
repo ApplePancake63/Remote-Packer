@@ -20,7 +20,7 @@ function RemotePacker:FireServer(key:string, info:{key_capacity:number, key_time
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
+	if #keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireServer(key, key_data)
@@ -38,7 +38,7 @@ function RemotePacker:FireClient(player:Player, key:string, info:{key_capacity:n
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
+	if #keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireClient(player, key, key_data)
@@ -55,7 +55,7 @@ function RemotePacker:FireAllClients(key:string, info:{key_capacity:number, key_
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
+	if #keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireAllClients(key, key_data)
