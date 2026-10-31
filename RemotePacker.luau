@@ -7,54 +7,55 @@ local keys = {} :: {key_data}
 local remote = script:FindFirstChildOfClass("RemoteEvent") -- THIS IS THE REMOTE EVENT THAT MAKES THE WHOLE SCRIPT WORK
 local is_init = false
 
-function RemotePacker:FireServer(key:string, key_capacity:number, key_timer:number, ...:any)
+function RemotePacker:FireServer(key:string, info:{key_capacity:number, key_timer:number}, ...:any)
 	if not is_init then return end
+	info = info or {}
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "Server",
-			key_capacity = key_capacity,
-			key_timer = key_timer,
+			key_capacity = info.key_capacity or 1,
+			key_timer = info.key_timer or 0,
 			key_delta = 0,
 			key_data = {}
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data < keys[key].key_capacity then return end
+	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireServer(key, key_data)
 end
-function RemotePacker:FireClient(player:Player, key:string, key_capacity:number, key_timer:number, ...:any)
+function RemotePacker:FireClient(player:Player, key:string, info:{key_capacity:number, key_timer:number}, ...:any)
 	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "Client",
 			key_player = player,
-			key_capacity = key_capacity,
-			key_timer = key_timer,
+			key_capacity = info.key_capacity or 1,
+			key_timer = info.key_timer or 0,
 			key_delta = 0,
 			key_data = {}
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data < keys[key].key_capacity and keys.delta < keys[key].key_timer then return end
+	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireClient(player, key, key_data)
 end
-function RemotePacker:FireAllClients(key:string, key_capacity:number, key_timer:number, ...:any)
+function RemotePacker:FireAllClients(key:string, info:{key_capacity:number, key_timer:number}, ...:any)
 	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "AllClients",
-			key_capacity = key_capacity,
-			key_timer = key_timer,
+			key_capacity = info.key_capacity or 1,
+			key_timer = info.key_timer or 0,
 			key_delta = 0,
 			key_data = {}
 		}
 	end
 	table.insert(keys[key].key_data, {...})
-	if #keys[key].key_data < keys[key].key_capacity then return end
+	if keys[key].key_data < keys[key].key_capacity and keys[key].key_delta < keys[key].key_timer then return end
 	local key_data = keys[key].key_data
 	keys[key] = nil
 	remote:FireAllClients(key, key_data)
