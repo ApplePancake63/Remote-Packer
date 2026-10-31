@@ -30,15 +30,15 @@ end)
 Send something:
 ```lua
 --Send to Server
-RemotePacker:FireServer("key", 5, 0.1, ...)
+RemotePacker:FireServer("key", {5, 0.1}, ...)
 --1st argument is a key for calls, similar to multiple RemoteEvents with different names
 --2nd argument is an amount of "calls" can be stored until real remote event will be fire
 --i.e. remote event will be fired when RemotePacker:FireServer() called 5 times for one key
 --3rd argument is kind of timeout that fires when time passed and "calls" amount did not reach needed
 --Send to One Client
-RemotePacker:FireClient(player, "key", 5, 0.1, ...)
+RemotePacker:FireClient(player, "key", {5, 0.1}, ...)
 --Send to All Clients
-RemotePacker:FireAllClients("key", 5, 0.1, ...)
+RemotePacker:FireAllClients("key", {5, 0.1}, ...)
 ```
 ## How It Works
 Keys system:
