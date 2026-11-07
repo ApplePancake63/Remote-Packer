@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 type key_data = {remote_type:"Server"|"Client"|"AllClients", key_player:Player?, key_capacity:number, key_timer:number, key_delta:number, key_data:{{any}}}
 local keys = {} :: {key_data}
 
-local remote = script:FindFirstChildOfClass("RemoteEvent") -- THIS IS THE REMOTE EVENT THAT MAKES THE WHOLE SCRIPT WORK
+local remote = script:FindFirstChildOfClass("RemoteEvent")or Instance.new("RemoteEvent",script) -- THIS IS THE REMOTE EVENT THAT MAKES THE WHOLE SCRIPT WORK
 local is_init = false
 
 function RemotePacker:FireServer(key:string, info:{key_capacity:number, key_timer:number}, ...:any)
@@ -95,10 +95,6 @@ local function InitRunService(delta)
 end
 
 --\\ on require()
-if not remote then
-	warn("!!!WARNING!!! PLEASE ADD A REMOTE EVENT INTO THE", script, "SCRIPT OR SET THE CORRECT PATH TO ONE")
-	return RemotePacker
-end
 if RunService:IsClient() then
 	RunService.RenderStepped:Connect(InitRunService)
 else
