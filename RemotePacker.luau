@@ -5,10 +5,8 @@ type key_data = {remote_type:"Server"|"Client"|"AllClients", key_player:Player?,
 local keys = {} :: {key_data}
 
 local remote = script:FindFirstChildOfClass("RemoteEvent")or Instance.new("RemoteEvent",script) -- THIS IS THE REMOTE EVENT THAT MAKES THE WHOLE SCRIPT WORK
-local is_init = false
 
 function RemotePacker:FireServer(key:string, info:{key_capacity:number, key_timer:number}, ...:any)
-	if not is_init then return end
 	info = info or {}
 	if not keys[key] then
 		keys[key] = {
@@ -26,7 +24,6 @@ function RemotePacker:FireServer(key:string, info:{key_capacity:number, key_time
 	remote:FireServer(key, key_data)
 end
 function RemotePacker:FireClient(player:Player, key:string, info:{key_capacity:number, key_timer:number}, ...:any)
-	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "Client",
@@ -44,7 +41,6 @@ function RemotePacker:FireClient(player:Player, key:string, info:{key_capacity:n
 	remote:FireClient(player, key, key_data)
 end
 function RemotePacker:FireAllClients(key:string, info:{key_capacity:number, key_timer:number}, ...:any)
-	if not is_init then return end
 	if not keys[key] then
 		keys[key] = {
 			remote_type = "AllClients",
@@ -62,7 +58,6 @@ function RemotePacker:FireAllClients(key:string, info:{key_capacity:number, key_
 end
 
 function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->()):RBXScriptConnection
-	if not is_init then return end
 	return remote.OnServerEvent:Connect(function(player, key, key_data)
 		for _, data in key_data do
 			func(player, unpack(data))
@@ -70,7 +65,6 @@ function RemotePacker:ConnectOnServer(key:string, func:(Player, ...any)->()):RBX
 	end)
 end
 function RemotePacker:ConnectOnClient(key:string, func:(...any)->()):RBXScriptConnection
-	if not is_init then return end
 	return remote.OnClientEvent:Connect(function(key, key_data)
 		for _, data in key_data do
 			func(unpack(data))
@@ -100,7 +94,6 @@ if RunService:IsClient() then
 else
 	RunService.Heartbeat:Connect(InitRunService)
 end
-is_init = true
 --//
 
 return RemotePacker
